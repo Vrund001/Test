@@ -8,10 +8,32 @@ import NotificationToast from '../components/NotificationToast';
 
 const CustomerDashboard = () => {
   const { user, logout } = useAuth();
-  const { restaurants } = useData();
+  const { restaurants, getRestaurantTables } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCuisine, setSelectedCuisine] = useState('all');
   const [favorites, setFavorites] = useState([]);
+  const [restaurantTables, setRestaurantTables] = useState({});
+
+  // Load tables for each restaurant (limit to 3)
+  React.useEffect(() => {
+    const loadAllTables = async () => {
+      const tablesData = {};
+      for (const restaurant of restaurants) {
+        const tables = await getRestaurantTables(restaurant.id, 3);
+        tablesData[restaurant.id] = tables;
+      }
+      setRestaurantTables(tablesData);
+    };
+    loadAllTables();
+
+    // Listen for table updates from admin dashboard
+    const handleTablesUpdated = (event) => {
+      loadAllTables(); // Refresh all tables when admin makes changes
+    };
+
+    window.addEventListener('tablesUpdated', handleTablesUpdated);
+    return () => window.removeEventListener('tablesUpdated', handleTablesUpdated);
+  }, [restaurants, getRestaurantTables]);
 
   const cuisines = ['all', 'Fine Dining', 'Japanese', 'Italian', 'Indian', 'Mexican'];
 
@@ -168,7 +190,7 @@ const CustomerDashboard = () => {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Users className="w-3 h-3 md:w-4 md:h-4" />
-                      <span>{restaurant.tables.filter(t => t.status === 'available').length} tables</span>
+                      <span>{(restaurantTables[restaurant.id] || []).filter(t => t.status === 'available').length} tables</span>
                     </div>
                   </div>
                   

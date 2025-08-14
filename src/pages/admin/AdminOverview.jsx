@@ -221,9 +221,9 @@ const AdminOverview = () => {
               {recentTables.map((table) => (
                 <div key={table.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                   <div className="relative h-24 bg-gray-100">
-                    {table.primary_image ? (
+                    {table.thumbnail_image ? (
                       <img
-                        src={`http://localhost:5000${table.primary_image}`}
+                        src={`http://localhost:5000${table.thumbnail_image}`}
                         alt={`Table ${table.table_number}`}
                         className="w-full h-full object-cover"
                       />

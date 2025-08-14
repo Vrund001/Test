@@ -114,6 +114,8 @@ const AdminMenu = () => {
           y_position: 0
         });
         loadTables();
+        // Trigger refresh in customer dashboard by updating context
+        window.dispatchEvent(new CustomEvent('tablesUpdated', { detail: { restaurantId: newTable.restaurant_id } }));
       }
     } catch (error) {
       addNotification(error.message || 'Failed to add table', 'error');
@@ -152,6 +154,8 @@ const AdminMenu = () => {
         addNotification(`${files.length} image(s) uploaded successfully`, 'success');
         setShowImageModal(false);
         loadTables();
+        // Trigger refresh in customer dashboard
+        window.dispatchEvent(new CustomEvent('tablesUpdated', { detail: { restaurantId: selectedTable.restaurant_id } }));
       } else {
         addNotification(result.message || 'Failed to upload images', 'error');
       }
@@ -294,7 +298,7 @@ const AdminMenu = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center sticky top-0 bg-gray-50 py-4 z-30">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Menu Management</h1>
           <p className="text-gray-600">Manage your restaurant's menu items and pricing</p>
@@ -328,9 +332,9 @@ const AdminMenu = () => {
           {tables.slice(0, 3).map((table) => (
             <div key={table.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
               <div className="relative h-32 bg-gray-100">
-                {table.primary_image ? (
+                {table.thumbnail_image ? (
                   <img
-                    src={`http://localhost:5000${table.primary_image}`}
+                    src={`http://localhost:5000${table.thumbnail_image}`}
                     alt={`Table ${table.table_number}`}
                     className="w-full h-full object-cover"
                   />

@@ -199,10 +199,31 @@ const mockMenuItems = {
 
 export const DataProvider = ({ children }) => {
   const [restaurants, setRestaurants] = useState(mockRestaurants);
+  const [realTables, setRealTables] = useState([]); // Store real tables from backend
   const [orders, setOrders] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [cart, setCart] = useState([]);
   
+  // Load tables from backend
+  const loadTablesFromBackend = async (restaurantId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/restaurants/${restaurantId}/tables`);
+      const result = await response.json();
+      if (result.success) {
+        return result.data;
+      }
+    } catch (error) {
+      console.error('Failed to load tables:', error);
+    }
+    return [];
+  };
+
+  // Get tables for a restaurant (limit to 3 for customer dashboard)
+  const getRestaurantTables = async (restaurantId, limit = null) => {
+    const tables = await loadTablesFromBackend(restaurantId);
+    return limit ? tables.slice(0, limit) : tables;
+  };
+
   // Admin functionality
   const updateRestaurant = (restaurantId, updates) => {
     setRestaurants(prev => prev.map(restaurant => 
@@ -258,6 +279,10 @@ export const DataProvider = ({ children }) => {
 
   const value = {
     restaurants,
+    realTables,
+    setRealTables,
+    getRestaurantTables,
+    loadTablesFromBackend,
     orders,
     bookings,
     cart,
